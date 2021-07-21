@@ -3,8 +3,9 @@
         <h2>Popularni filmi</h2>
         <div class="home-grid">
             <Sidebar :genres="genres" @filters_updated="filterMovieList($event)" />
-            <Movielist :movies="movies_to_show" />
+            <Movielist :movies="movies_to_show" @load_more="load_movies()" />
         </div>
+         <vue-progress-bar></vue-progress-bar>
     </div>
 </template>
 
@@ -24,13 +25,28 @@ export default {
             movies:[],
             genres:[],
             genre_filter_list:[],
+            currpage:1,
+            scrolledToBottom:false,
         }
     },
     mounted(){
         this.getMovies();
         this.getGenres();
+        this.scroll();
     },
     methods:{
+
+        scroll () {
+            window.onscroll = () => {
+                let bottomOfWindow = Math.max(window.pageYOffset, document.documentElement.scrollTop, document.body.scrollTop) + window.innerHeight === document.documentElement.offsetHeight
+
+                if (bottomOfWindow) {
+                    this.scrolledToBottom = true // replace it with your code
+                }else{
+                    this.scrolledToBottom = false
+                }
+            }
+        },
 
         getMovies(){
 
@@ -38,7 +54,8 @@ export default {
             const params = {
                 api_key : '533768cb32183a678781d4bbe84a2493',
                 language: 'en-US',
-                page: 1
+                page: this.currpage,
+                genre:[2]
             }
 
             axios.get(api_url,{
@@ -69,6 +86,24 @@ export default {
             this.genre_filter_list = genre_list;
            
         },
+        load_movies(){
+            this.$Progress.start();
+            this.currpage ++;
+            const api_url = "https://api.themoviedb.org/3/movie/popular";
+            const params = {
+                api_key : '533768cb32183a678781d4bbe84a2493',
+                language: 'en-US',
+                page: this.currpage
+            }
+
+            axios.get(api_url,{
+                params
+            }).then(response => {
+                 this.$Progress.start();
+                console.log(response.data);
+                 this.movies = [...this.movies,...response.data.results];
+            })
+        }
 
     },
     computed:{
@@ -83,6 +118,14 @@ export default {
                 }
             });
             return filtered_movies;
+        }
+    },
+    watch:{
+        scrolledToBottom(newVal){
+            console.log(newVal);
+            if(newVal){
+                this.load_movies();
+            }
         }
     }
 

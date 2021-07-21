@@ -1,5 +1,6 @@
 <template>
-  <div class="movielist">
+<div>
+    <div class="movielist">
       
       <div class="movie card" v-for="movie in movies" v-bind:key="movie.id">
           
@@ -18,7 +19,12 @@
           </div>
          
       </div>
-  </div>
+    </div>
+    <!-- <div class="morebutton" @click="loadMore()">
+        load more
+    </div> -->
+</div>
+  
 </template>
 
 <script>
@@ -38,6 +44,11 @@ export default {
             link_to_image_store : "https://image.tmdb.org/t/p/original/",
         }
     },
+    methods:{
+        loadMore(){
+            this.$emit('load_more');
+        }
+    }
 
 }
 </script>
@@ -88,6 +99,20 @@ export default {
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+
+    .morebutton{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px 20px;
+        background: cornflowerblue;
+        color: white;
+        cursor: pointer;
+        width: 100px;
+        margin: auto;
+        margin-top: 30px;
+        border-radius: 5px;
     }
 
 </style>
